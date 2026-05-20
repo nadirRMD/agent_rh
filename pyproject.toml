@@ -9,7 +9,16 @@ authors = [
 ]
 dependencies = [
     "deepagents>=0.6.2",
+    "dotenv>=0.9.9",
     "langchain>=1.3.1",
+    "langchain-community>=0.3.0",
+    "langchain-chroma>=0.1.0",
+    "langchain-openai>=1.2.1",
+    "langchain-text-splitters>=0.3.0",
+    "chromadb>=0.5.0",
+    "openai>=1.0.0",
+    "pypdf>=5.0.0",
+    "sentence-transformers>=3.0.0",
 ]
 
 [project.scripts]
