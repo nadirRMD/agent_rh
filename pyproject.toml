@@ -16,8 +16,11 @@ dependencies = [
     "langchain-openai>=1.2.1",
     "langchain-text-splitters>=0.3.0",
     "chromadb>=0.5.0",
+    "msal>=1.33.0",
+    "msal-extensions>=1.2.0",
     "openai>=1.0.0",
     "pypdf>=5.0.0",
+    "requests>=2.32.0",
     "sentence-transformers>=3.0.0",
 ]
 
