@@ -8,8 +8,10 @@ from langchain_core.tools import tool
 from calendarAPI import OutlookCalendarClient, OutlookCalendarConfig
 from config import MICROSOFT_CLIENT_ID
 from llm import model
+from rag.rag_qa import answer_question
 
 load_dotenv()
+
 
 def _build_calendar_client() -> OutlookCalendarClient:
     """Create a calendar client with the current environment settings."""
@@ -61,9 +63,23 @@ def get_calendar(
     return "\n".join(client._event_label(event) for event in events)
 
 
+@tool
+def ask_rag(question: str) -> str:
+    """Interroge les documents RH indexés dans le RAG local."""
+    if not question.strip():
+        return "Veuillez fournir une question non vide."
+
+    try:
+        result = answer_question(question)
+    except Exception as exc:
+        return f"RAG lookup failed: {exc}"
+
+    return str(result.get("answer", ""))
+
+
 agent = create_agent(
     model=model,
-    tools=[get_calendar],
+    tools=[get_calendar, ask_rag],
     system_prompt=(
         "Tu es un assistant RH. Tu aides l'utilisateur à poser un congé et à vérifier "
         "si ce congé coïncide avec des événements dans le calendrier de l'entreprise. "
@@ -71,6 +87,7 @@ agent = create_agent(
         "une date de début et un nombre de jours. Si l'information est incomplète ou "
         "ambiguë, tu dois la demander avant de lancer la vérification. Si un événement "
         "est trouvé, tu dois répondre avec le nom de l'événement, la date de début et "
-        "la date de fin."
+        "la date de fin. Tu peux aussi utiliser le RAG pour répondre à des questions "
+        "sur les documents RH indexés lorsque c'est pertinent."
     ),
 )
