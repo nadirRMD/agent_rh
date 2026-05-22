@@ -1,0 +1,11 @@
+ID;Question;Type;Réponse attendue;Score attendu
+1;"Quelle est la procédure pour demander des congés payés ?";"Dans corpus";"Saisir la demande dans l’outil RH, respecter les délais de prévenance et obtenir la validation avant le départ.";"Pertinence 5"
+2;"Quel est le délai minimum pour un congé de 1 à 2 jours ?";"Dans corpus (détail)";"7 jours.";"Fidélité 5"
+3;"Quel délai faut-il respecter pour un congé de plus de 5 jours ?";"Dans corpus (détail)";"1 mois.";"Fidélité 5"
+4;"Quels sont les critères utilisés pour valider les congés ?";"Dans corpus";"Les besoins du service, la continuité d’activité et les périodes de forte charge.";"Cohérence 5"
+5;"Quelles sont les règles d’utilisation des RTT ?";"Dans corpus";"Les RTT doivent être planifiés, sont soumis à validation et ne doivent pas désorganiser le service.";"Pertinence 5"
+6;"Comment puis-je poser un congé ?";"Reformulation";"Même réponse que la question sur la procédure de demande de congés payés.";"Pertinence 4-5"
+7;"Que doit faire le salarié en cas d’absence maladie ?";"Libre";"Prévenir son manager ou le service RH dans les meilleurs délais et transmettre l’arrêt de travail sous 48 heures.";"Cohérence 5"
+8;"Quels sont les risques d’une absence injustifiée ?";"Libre";"Une retenue sur salaire et une possible qualification de faute disciplinaire.";"Cohérence 5"
+9;"Quelle est la capitale du Japon ?";"Hors corpus";"Je n’ai pas cette information.";"Fidélité 5 (refuse)"
+10;"J’ai besoin de poser un congé la semaine prochaine.";"Ambiguë";"Demande de précisions sur la date de début et la date de fin, ou sur la date de début et le nombre de jours.";"Pertinence 3-4"

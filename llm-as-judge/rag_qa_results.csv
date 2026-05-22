@@ -1,0 +1,84 @@
+#;Question;Type;Réponse attendue;Score attendu;Réponse RAG;Sources
+1;Quelle est la procédure pour demander des congés payés ?;Dans corpus;Saisir la demande dans l’outil RH, respecter les délais de prévenance et obtenir la validation avant le départ.;Pertinence 5;"Pour demander des congés payés, la procédure indiquée est la suivante :
+
+- saisir la demande dans l’outil RH ;
+- respecter les délais de prévenance ;
+- faire valider la demande avant le départ.
+
+Délais de prévenance indiqués pour les congés payés :
+- moins de 5 jours : 7 jours minimum ;
+- 5 jours ou plus : 30 jours minimum.
+
+La validation se fait selon :
+- les besoins du service ;
+- la continuité d’activité ;
+- les périodes de forte charge.
+
+Je ne peux pas déduire d’autres étapes que celles-ci à partir du contexte fourni.";Regles_de_gestion.pdf | regles_intene.pdf
+2;Quel est le délai minimum pour un congé de 1 à 2 jours ?;Dans corpus (détail);7 jours.;Fidélité 5;Le délai minimum pour un congé de 1 à 2 jours est de **7 jours**.;Regles_de_gestion.pdf | regles_intene.pdf
+3;Quel délai faut-il respecter pour un congé de plus de 5 jours ?;Dans corpus (détail);1 mois.;Fidélité 5;Pour un congé de plus de 5 jours, il faut respecter un délai de prévenance de **1 mois**.;Regles_de_gestion.pdf | regles_intene.pdf
+4;Quels sont les critères utilisés pour valider les congés ?;Dans corpus;Les besoins du service, la continuité d’activité et les périodes de forte charge.;Cohérence 5;"Les critères de validation des congés mentionnés dans le contexte sont :
+
+- **Validation obligatoire avant la prise effective** de l’absence.
+- **Respect du délai de prévenance** :
+  - **CP** : 7 jours si l’absence est inférieure à 5 jours, 30 jours si elle est de 5 jours ou plus.
+  - **RTT** : 48 heures.
+- **Solde disponible suffisant** pour les **congés payés** et les **RTT** ; sinon la demande est rejetée.
+- **Absence de conflit avec une autre absence** : deux absences ne peuvent pas se chevaucher.
+- **Validation selon les besoins du service / continuité d’activité / périodes de forte charge**.
+- Pour les **RTT**, il est aussi indiqué qu’ils **ne doivent pas générer de désorganisation du service**.
+
+Je ne peux pas déduire d’autres critères que ceux-ci à partir du contexte fourni.";Regles_de_gestion.pdf | regles_intene.pdf
+5;Quelles sont les règles d’utilisation des RTT ?;Dans corpus;Les RTT doivent être planifiés, sont soumis à validation et ne doivent pas désorganiser le service.;Pertinence 5;"Les RTT :
+
+- doivent être planifiés ;
+- sont soumis à validation ;
+- ne peuvent pas générer de désorganisation de service ;
+- s’ils ne sont pas utilisés avant le 31 décembre, ils sont perdus, sauf dérogation RH.
+
+Je ne peux pas déduire d’autres règles d’utilisation des RTT à partir du contexte fourni.";Regles_de_gestion.pdf | regles_intene.pdf
+6;Comment puis-je poser un congé ?;Reformulation;Même réponse que la question sur la procédure de demande de congés payés.;Pertinence 4-5;"Pour poser un congé, vous devez :
+
+- **saisir votre demande dans l’outil RH** ;
+- **respecter le délai de prévenance** :
+  - **congés payés de moins de 5 jours** : **7 jours** minimum,
+  - **congés payés de 5 jours ou plus** : **30 jours** minimum,
+  - **RTT** : **48 h** ;
+- **faire valider la demande avant le départ**.
+
+La demande peut être **refusée** si :
+- le **solde est insuffisant** ;
+- elle **chevauche une autre absence** ;
+- elle n’est pas compatible avec les **besoins du service**, la **continuité d’activité** ou les **périodes de forte charge**.
+
+Si vous voulez, je peux aussi vous résumer la procédure pour les **RTT**, les **absences maladie** ou les **absences exceptionnelles**.";Regles_de_gestion.pdf | regles_intene.pdf
+7;Que doit faire le salarié en cas d’absence maladie ?;Libre;Prévenir son manager ou le service RH dans les meilleurs délais et transmettre l’arrêt de travail sous 48 heures.;Cohérence 5;"En cas d’absence maladie, le salarié doit :
+
+- prévenir son manager ou le service RH dans les meilleurs délais ;
+- transmettre l’arrêt de travail sous 48 heures.
+
+Je ne peux pas déduire d’autres obligations spécifiques à partir du contexte fourni.";Regles_de_gestion.pdf | regles_intene.pdf
+8;Quels sont les risques d’une absence injustifiée ?;Libre;Une retenue sur salaire et une possible qualification de faute disciplinaire.;Cohérence 5;"D’après le contexte, une absence injustifiée peut entraîner :
+
+- **une retenue sur salaire**
+- **une qualification de faute disciplinaire**
+
+Je ne peux pas déduire d’autres risques à partir des éléments fournis.";Regles_de_gestion.pdf | regles_intene.pdf
+9;Quelle est la capitale du Japon ?;Hors corpus;Je n’ai pas cette information.;Fidélité 5 (refuse);Je ne peux pas le déduire à partir du contexte fourni.;Regles_de_gestion.pdf | regles_intene.pdf
+10;J’ai besoin de poser un congé la semaine prochaine.;Ambiguë;Demande de précisions sur la date de début et la date de fin, ou sur la date de début et le nombre de jours.;Pertinence 3-4;"Pour un **congé payé (CP)**, la demande doit :
+
+- être **saisie dans l’outil RH**,
+- **respecter les délais de prévenance**,
+- être **validée avant le départ**.
+
+Délai minimum indiqué :
+- **moins de 5 jours** : **7 jours**
+- **5 jours ou plus** : **30 jours**
+
+Si vous voulez poser un congé **la semaine prochaine**, je ne peux pas déduire du contexte si cela est accepté ou non sans connaître :
+- la **date exacte** de début,
+- la **durée** du congé,
+- votre **solde disponible**,
+- et la **validation du manager** / les besoins du service.
+
+Si vous souhaitez, je peux vous dire si cela respecte les règles **si vous me donnez les dates exactes**.";Regles_de_gestion.pdf | regles_intene.pdf
