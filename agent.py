@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 from datetime import timedelta
 import os
 
@@ -13,6 +14,21 @@ from llm import model
 from rag.rag_qa import answer_question
 
 load_dotenv()
+
+CURRENT_AUTHENTICATED_LOGIN: ContextVar[str | None] = ContextVar(
+    "CURRENT_AUTHENTICATED_LOGIN",
+    default=None,
+)
+
+
+def set_authenticated_login(login: str | None) -> None:
+    """Store the authenticated login for the current request context."""
+    CURRENT_AUTHENTICATED_LOGIN.set(login.strip() if isinstance(login, str) and login.strip() else None)
+
+
+def get_authenticated_login() -> str | None:
+    """Return the login attached to the current request context."""
+    return CURRENT_AUTHENTICATED_LOGIN.get()
 
 
 def _build_calendar_client() -> OutlookCalendarClient:
@@ -94,18 +110,24 @@ def demander_conge(
     start_date: str,
     end_date: str,
     note: str,
-    person_id: str,
+    person_id: str | None = None,
 ) -> str:
     """Submit a Jibble leave request for an existing member."""
-    if not all(value.strip() for value in (start_date, end_date, note, person_id)):
-        return "Veuillez fournir start_date, end_date, note et person_id."
+    authenticated_login = get_authenticated_login()
+    resolved_person_id = person_id.strip() if isinstance(person_id, str) and person_id.strip() else authenticated_login
+
+    if not all(value.strip() for value in (start_date, end_date, note)):
+        return "Veuillez fournir start_date, end_date et note."
+
+    if not resolved_person_id:
+        return "Impossible de determiner l'identifiant du membre authentifie."
 
     try:
         status_code, body = jibble_demander_conge(
             start_date=start_date.strip(),
             end_date=end_date.strip(),
             note=note.strip(),
-            person_id=person_id.strip(),
+            person_id=resolved_person_id,
         )
     except Exception as exc:
         return f"Demande de conge Jibble echouee: {exc}"
@@ -115,16 +137,15 @@ def demander_conge(
 
 agent = create_agent(
     model=model,
-    tools=[jibble_member_exists, get_calendar, ask_rag, demander_conge],
+    tools=[get_calendar, ask_rag, demander_conge],
     system_prompt=(
-        "Tu es un assistant RH. Tu dois d'abord demander a l'utilisateur son identifiant "
-        "Jibble si tu ne l'as pas encore. Ensuite, tu dois verifier si ce membre existe en "
-        "utilisant le tool jibble_member_exists. Si le membre existe, tu dois expliquer que "
+        "Tu es un assistant RH. tu dois expliquer que "
         "tu peux aider a poser des conges avec demander_conge, verifier les conflits de "
         "planning dans le calendrier avec get_calendar, et verifier les regles RH dans les "
         "documents indexes avec ask_rag. "
         "Pour poser un conge, tu dois demander les informations manquantes: date de debut, "
-        "date de fin, note, et identifiant du membre. "
+        "date de fin et note. Si un identifiant authentifie est disponible dans le contexte, "
+        "utilise-le comme identifiant du membre et ne le redemande pas. "
         "Pour verifier le planning, tu dois utiliser get_calendar. "
         "Pour verifier les regles RH, tu dois utiliser ask_rag. "
         "Ne lance aucune demande de conge avant d'avoir verifie que le membre existe."

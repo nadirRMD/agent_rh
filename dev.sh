@@ -105,7 +105,7 @@ start_mode() {
   echo "Starting Agent RH backend on http://127.0.0.1:${BACKEND_PORT}"
   (
     cd "${ROOT_DIR}"
-    UV_CACHE_DIR="${UV_CACHE_DIR}" XDG_DATA_HOME="${UV_DATA_HOME}" AGENT_RH_PORT="${BACKEND_PORT}" uv run python main.py
+    UV_CACHE_DIR="${UV_CACHE_DIR}" XDG_DATA_HOME="${UV_DATA_HOME}" AGENT_RH_PORT="${BACKEND_PORT}" FRONTEND_AUTH_SECRET="${FRONTEND_AUTH_SECRET}" uv run python main.py
   ) &
   backend_pid=$!
   write_pid_file "${BACKEND_PID_FILE}" "${backend_pid}"

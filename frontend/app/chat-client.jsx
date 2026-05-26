@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { AUTH_STORAGE_KEY } from "../lib/auth";
 
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000").replace(
+  /\/$/,
+  "",
+);
+
 const examples = [
   "Quels sont les conges poses en juin ?",
   "Y a-t-il un conflit avec un conge du 12 au 14 juin ?",
@@ -32,7 +37,7 @@ export default function ChatClient() {
 
     try {
       const token = window.localStorage.getItem(AUTH_STORAGE_KEY);
-      const response = await fetch("/api/chat", {
+      const response = await fetch(`${BACKEND_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +81,7 @@ export default function ChatClient() {
           <h1>Une interface Next.js pour parler au backend RH.</h1>
           <p className="lede">
             Posez une question sur les conges ou les documents RH, puis laissez
-            le proxy Next.js appeler l'API FastAPI locale.
+            le frontend appeler directement l'API FastAPI du backend.
           </p>
           <div className="auth-actions">
             <span className="auth-pill">Authentifie</span>
@@ -122,7 +127,7 @@ export default function ChatClient() {
           <div className="response">
             <div className="response-head">
               <h2>Retour</h2>
-              <span>POST /chat via /api/chat</span>
+              <span>POST /chat via backend</span>
             </div>
             {error ? (
               <pre className="response-box error">{error}</pre>
