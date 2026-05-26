@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AUTH_STORAGE_KEY } from "../lib/auth";
 
 const examples = [
   "Quels sont les conges poses en juin ?",
@@ -31,22 +30,16 @@ export default function ChatClient() {
     setAnswer("");
 
     try {
-      const token = window.localStorage.getItem(AUTH_STORAGE_KEY);
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { "x-agent-rh-token": token } : {}),
         },
         body: JSON.stringify({ question }),
       });
 
       const text = await response.text();
       if (!response.ok) {
-        if (response.status === 401) {
-          window.location.assign("/login");
-          return;
-        }
         throw new Error(text || `Request failed with status ${response.status}`);
       }
 
@@ -59,13 +52,7 @@ export default function ChatClient() {
   }
 
   async function handleLogout() {
-    const token = window.localStorage.getItem(AUTH_STORAGE_KEY);
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: token ? { "x-agent-rh-token": token } : {},
-    });
-    window.localStorage.removeItem(AUTH_STORAGE_KEY);
-    window.location.assign("/login");
+    window.location.reload();
   }
 
   return (
@@ -78,9 +65,9 @@ export default function ChatClient() {
          Posez une question sur les congés ou les règles RH, puis laissez l’assistant vous guider.
           </p>
           <div className="auth-actions">
-            <span className="auth-pill">Authentifie</span>
+            <span className="auth-pill">Acces direct</span>
             <button type="button" className="ghost-button" onClick={handleLogout}>
-              Se deconnecter
+              Rafraichir
             </button>
           </div>
           <div className="chips" aria-label="Exemples de questions">
