@@ -3,11 +3,6 @@
 import { useState } from "react";
 import { AUTH_STORAGE_KEY } from "../lib/auth";
 
-const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000").replace(
-  /\/$/,
-  "",
-);
-
 const examples = [
   "Quels sont les conges poses en juin ?",
   "Y a-t-il un conflit avec un conge du 12 au 14 juin ?",
@@ -37,7 +32,7 @@ export default function ChatClient() {
 
     try {
       const token = window.localStorage.getItem(AUTH_STORAGE_KEY);
-      const response = await fetch(`${BACKEND_URL}/chat`, {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +121,7 @@ export default function ChatClient() {
           <div className="response">
             <div className="response-head">
               <h2>Retour</h2>
-              <span>POST /chat via backend</span>
+              <span>POST /api/chat via frontend</span>
             </div>
             {error ? (
               <pre className="response-box error">{error}</pre>

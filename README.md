@@ -58,10 +58,6 @@ If your backend runs somewhere else, set `BACKEND_URL` before starting Next.js.
 
 The Next.js app now shows a login screen before the chat interface.
 
-- Default development login: `agent-rh`
-- Default development password: `agent-rh`
-- You can override the login with `FRONTEND_AUTH_LOGIN`
-- You can override the password with `FRONTEND_AUTH_PASSWORD`
 - The signed access token uses `FRONTEND_AUTH_SECRET`
 
 ## One-command dev mode
@@ -78,10 +74,42 @@ On the first run, `dev.sh` will install the frontend dependencies automatically 
 
 Before starting, `dev.sh` now checks that both ports are free and clears the local runtime cache in `/tmp/agent-rh-dev` plus the Next.js build output in `frontend/.next`.
 
-It also seeds the frontend auth defaults for local development unless you set your own `FRONTEND_AUTH_LOGIN`, `FRONTEND_AUTH_PASSWORD`, and `FRONTEND_AUTH_SECRET`.
+It also seeds the frontend auth defaults for local development unless you set your own `FRONTEND_AUTH_SECRET`.
 
 To stop a running dev session cleanly, use:
 
 ```bash
 ./dev.sh --stop
+```
+
+## Vercel deployment
+
+Deploy the frontend and backend as two separate Vercel projects from the same repository:
+
+1. Frontend project:
+   - Root directory: `frontend`
+   - Framework: Next.js
+2. Backend project:
+   - Root directory: repository root
+   - Entry point: `app.py`
+
+Required environment variables:
+
+- Frontend project:
+  - `BACKEND_URL` = URL of the deployed backend project
+  - `FRONTEND_AUTH_SECRET`
+- Backend project:
+  - `OPENAI_API_KEY`
+  - `FRONTEND_AUTH_SECRET`
+  - `JIBBLE_CLIENT_ID`
+  - `JIBBLE_CLIENT_SECRET`
+  - `MICROSOFT_CLIENT_ID`
+  - `MICROSOFT_TENANT_ID` if you do not want the default `common`
+  - `MICROSOFT_TIMEZONE` if you do not want the default `Europe/Paris`
+  - `AGENT_RH_FRONTEND_ORIGIN` if you want to restrict CORS to a specific frontend domain
+
+For local development, you can keep using:
+
+```bash
+./dev.sh
 ```

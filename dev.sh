@@ -4,8 +4,6 @@ set -euo pipefail
 
 BACKEND_PORT="${AGENT_RH_PORT:-8000}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
-FRONTEND_AUTH_LOGIN="${FRONTEND_AUTH_LOGIN:-agent-rh}"
-FRONTEND_AUTH_PASSWORD="${FRONTEND_AUTH_PASSWORD:-agent-rh}"
 FRONTEND_AUTH_SECRET="${FRONTEND_AUTH_SECRET:-agent-rh-dev-secret}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNTIME_DIR="${AGENT_RH_RUNTIME_DIR:-/tmp/agent-rh-dev}"
@@ -118,8 +116,6 @@ start_mode() {
       npm install
     fi
     PORT="${FRONTEND_PORT}" \
-    FRONTEND_AUTH_LOGIN="${FRONTEND_AUTH_LOGIN}" \
-    FRONTEND_AUTH_PASSWORD="${FRONTEND_AUTH_PASSWORD}" \
     FRONTEND_AUTH_SECRET="${FRONTEND_AUTH_SECRET}" \
     npm run dev
   ) &

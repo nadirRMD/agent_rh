@@ -1,5 +1,9 @@
 """Parametres globaux."""
 
+import os
+
 APP_NAME = "agent-rh"
 DEFAULT_MODEL = "gpt-4.1-mini"
 MICROSOFT_CLIENT_ID = "37d8b0a3-80f7-4940-afb7-cf23e5f230d5"
+JIBBLE_CLIENT_ID = "3248789b-fb95-4120-a16b-2f4967276a34"
+JIBBLE_CLIENT_SECRET = "6nNt2qc8bxBvICPBdd0kgHBDpHp4CexELBAZYvXKseoZBK4u"

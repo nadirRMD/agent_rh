@@ -1,12 +1,15 @@
 import requests
+from config import JIBBLE_CLIENT_ID,JIBBLE_CLIENT_SECRET
 
 JIBBLE_TOKEN_URL = "https://identity.prod.jibble.io/connect/token"
 JIBBLE_PEOPLE_URL = "https://workspace.prod.jibble.io/v1/People"
-JIBBLE_CLIENT_ID = "3248789b-fb95-4120-a16b-2f4967276a34"
-JIBBLE_CLIENT_SECRET = "6nNt2qc8bxBvICPBdd0kgHBDpHp4CexELBAZYvXKseoZBK4u"
+
 
 
 def get_jibble_access_token() -> dict[str, object]:
+    if not JIBBLE_CLIENT_ID or not JIBBLE_CLIENT_SECRET:
+        raise ValueError("Missing JIBBLE_CLIENT_ID or JIBBLE_CLIENT_SECRET.")
+
     payload = {
         "grant_type": "client_credentials",
         "client_id": JIBBLE_CLIENT_ID,
