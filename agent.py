@@ -7,6 +7,8 @@ from langchain_core.tools import tool
 
 from calendarAPI import OutlookCalendarClient, OutlookCalendarConfig
 from config import MICROSOFT_CLIENT_ID
+from jibble.demande_conge import demander_conge as jibble_demander_conge
+from jibble.jibble_connect import jibble_member_exists as jibble_member_exists_api
 from llm import model
 from rag.rag_qa import answer_question
 
@@ -31,14 +33,7 @@ def get_calendar(
     days: float | None = None,
     top: int = 10,
 ) -> str:
-    """Get Outlook calendar events between two dates.
-
-    Args:
-        from_date: Start date in ISO format, for example 2026-05-06.
-        end_date: Optional end date in ISO format.
-        days: Optional duration in days. Mutually exclusive with end_date.
-        top: Maximum number of events per Graph page.
-    """
+    """Get Outlook calendar events between two dates."""
     if not MICROSOFT_CLIENT_ID:
         return "Missing MICROSOFT_CLIENT_ID in config.py."
 
@@ -58,14 +53,14 @@ def get_calendar(
         return f"Calendar lookup failed: {exc}"
 
     if not events:
-        return "Aucun événement trouvé."
+        return "Aucun evenement trouve."
 
     return "\n".join(client._event_label(event) for event in events)
 
 
 @tool
 def ask_rag(question: str) -> str:
-    """Interroge les documents RH indexés dans le RAG local."""
+    """Query the local RH RAG documents."""
     if not question.strip():
         return "Veuillez fournir une question non vide."
 
@@ -77,17 +72,61 @@ def ask_rag(question: str) -> str:
     return str(result.get("answer", ""))
 
 
+@tool
+def jibble_member_exists(user_id: str) -> str:
+    """Check whether a Jibble member exists by id."""
+    if not user_id.strip():
+        return "Veuillez fournir un identifiant valide."
+
+    try:
+        exists = jibble_member_exists_api(user_id.strip())
+    except Exception as exc:
+        return f"Jibble member lookup failed: {exc}"
+
+    if exists:
+        return f"Le membre Jibble '{user_id}' existe."
+
+    return f"Le membre Jibble '{user_id}' n'existe pas."
+
+
+@tool
+def demander_conge(
+    start_date: str,
+    end_date: str,
+    note: str,
+    person_id: str,
+) -> str:
+    """Submit a Jibble leave request for an existing member."""
+    if not all(value.strip() for value in (start_date, end_date, note, person_id)):
+        return "Veuillez fournir start_date, end_date, note et person_id."
+
+    try:
+        status_code, body = jibble_demander_conge(
+            start_date=start_date.strip(),
+            end_date=end_date.strip(),
+            note=note.strip(),
+            person_id=person_id.strip(),
+        )
+    except Exception as exc:
+        return f"Demande de conge Jibble echouee: {exc}"
+
+    return f"Status: {status_code}. Response: {body}"
+
+
 agent = create_agent(
     model=model,
-    tools=[get_calendar, ask_rag],
+    tools=[jibble_member_exists, get_calendar, ask_rag, demander_conge],
     system_prompt=(
-        "Tu es un assistant RH. Tu aides l'utilisateur à poser un congé et à vérifier "
-        "si ce congé coïncide avec des événements dans le calendrier de l'entreprise. "
-        "L'utilisateur doit fournir soit une date de début et une date de fin, soit "
-        "une date de début et un nombre de jours. Si l'information est incomplète ou "
-        "ambiguë, tu dois la demander avant de lancer la vérification. Si un événement "
-        "est trouvé, tu dois répondre avec le nom de l'événement, la date de début et "
-        "la date de fin. Tu peux aussi utiliser le RAG pour répondre à des questions "
-        "sur les documents RH indexés lorsque c'est pertinent."
+        "Tu es un assistant RH. Tu dois d'abord demander a l'utilisateur son identifiant "
+        "Jibble si tu ne l'as pas encore. Ensuite, tu dois verifier si ce membre existe en "
+        "utilisant le tool jibble_member_exists. Si le membre existe, tu dois expliquer que "
+        "tu peux aider a poser des conges avec demander_conge, verifier les conflits de "
+        "planning dans le calendrier avec get_calendar, et verifier les regles RH dans les "
+        "documents indexes avec ask_rag. "
+        "Pour poser un conge, tu dois demander les informations manquantes: date de debut, "
+        "date de fin, note, et identifiant du membre. "
+        "Pour verifier le planning, tu dois utiliser get_calendar. "
+        "Pour verifier les regles RH, tu dois utiliser ask_rag. "
+        "Ne lance aucune demande de conge avant d'avoir verifie que le membre existe."
     ),
 )

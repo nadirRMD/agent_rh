@@ -4,11 +4,13 @@ import os
 import time
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 
 from agent import agent
+from jibble.demande_conge import demander_conge
+from jibble.jibble_connect import get_jibble_access_token, jibble_member_exists
 from monitoring import get_dashboard, log_request
 
 
@@ -17,6 +19,13 @@ app = FastAPI(title="Agent RH")
 
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1)
+
+
+class LeaveRequest(BaseModel):
+    start_date: str = Field(min_length=1)
+    end_date: str = Field(min_length=1)
+    note: str = Field(default="Just a vacation", min_length=1)
+    person_id: str = Field(min_length=1)
 
 
 def _extract_text(message) -> str:
@@ -189,6 +198,45 @@ def chat_form() -> str:
 @app.get("/metrics")
 def metrics() -> dict[str, object]:
     return get_dashboard()
+
+
+@app.get("/jibble/token")
+def jibble_token() -> dict[str, object]:
+    try:
+        return get_jibble_access_token()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Erreur Jibble: {exc}") from exc
+
+
+@app.get("/jibble/member-exists")
+def jibble_member_exists_endpoint(user_id: str = Query(min_length=1)) -> dict[str, object]:
+    try:
+        exists = jibble_member_exists(user_id)
+        return {"exists": exists}
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Erreur Jibble: {exc}") from exc
+
+
+@app.post("/jibble/demande-conge")
+def jibble_demande_conge(payload: LeaveRequest) -> dict[str, object]:
+    try:
+        status_code, body = demander_conge(
+            start_date=payload.start_date,
+            end_date=payload.end_date,
+            note=payload.note,
+            person_id=payload.person_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Erreur Jibble: {exc}") from exc
+
+    if status_code >= 400:
+        raise HTTPException(status_code=status_code, detail=body)
+
+    return {"status_code": status_code, "body": body}
 
 
 def main() -> None:
