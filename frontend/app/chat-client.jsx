@@ -78,10 +78,9 @@ export default function ChatClient() {
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">Agent RH</p>
-          <h1>Une interface Next.js pour parler au backend RH.</h1>
+          <h1>SmartRH Assistant</h1>
           <p className="lede">
-            Posez une question sur les conges ou les documents RH, puis laissez
-            le frontend appeler directement l'API FastAPI du backend.
+         Posez une question sur les congés ou les règles RH, puis laissez l’assistant vous guider.
           </p>
           <div className="auth-actions">
             <span className="auth-pill">Authentifie</span>
