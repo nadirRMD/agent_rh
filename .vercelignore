@@ -1,0 +1,12 @@
+.git
+.gitignore
+.venv
+.uv-cache
+__pycache__
+llm-as-judge
+memory
+*.pyc
+*.pyo
+*.pyd
+.env
+.python-version
