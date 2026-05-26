@@ -1,0 +1,139 @@
+"use client";
+
+import { useState } from "react";
+import { AUTH_STORAGE_KEY } from "../lib/auth";
+
+const examples = [
+  "Quels sont les congés posés en juin ?",
+  "Y a-t-il un conflit avec un congé du 12 au 14 juin ?",
+  "Que dit le document sur les congés maladie ?",
+];
+
+export default function ChatClient() {
+  const [question, setQuestion] = useState(examples[0]);
+  const [answer, setAnswer] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  let statusLabel = "Prêt";
+  if (loading) {
+    statusLabel = "Envoi en cours";
+  } else if (error) {
+    statusLabel = "Erreur";
+  } else if (answer) {
+    statusLabel = "Réponse";
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setAnswer("");
+
+    try {
+      const token = window.localStorage.getItem(AUTH_STORAGE_KEY);
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "x-agent-rh-token": token } : {}),
+        },
+        body: JSON.stringify({ question }),
+      });
+
+      const text = await response.text();
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.assign("/login");
+          return;
+        }
+        throw new Error(text || `Request failed with status ${response.status}`);
+      }
+
+      setAnswer(text);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    const token = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: token ? { "x-agent-rh-token": token } : {},
+    });
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    window.location.assign("/login");
+  }
+
+  return (
+    <main className="shell">
+      <section className="hero">
+        <div className="hero-copy">
+          <p className="eyebrow">Agent RH</p>
+          <h1>Une interface Next.js pour parler au backend RH.</h1>
+          <p className="lede">
+            Posez une question sur les congés ou les documents RH, puis laissez
+            le proxy Next.js appeler l'API FastAPI locale.
+          </p>
+          <div className="auth-actions">
+            <span className="auth-pill">Authentifié</span>
+            <button type="button" className="ghost-button" onClick={handleLogout}>
+              Se déconnecter
+            </button>
+          </div>
+          <div className="chips" aria-label="Exemples de questions">
+            {examples.map((item) => (
+              <button
+                key={item}
+                type="button"
+                className="chip"
+                onClick={() => setQuestion(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <aside className="panel">
+          <div className="panel-head">
+            <span className="status-dot" />
+            <span>{statusLabel}</span>
+          </div>
+
+          <form className="composer" onSubmit={handleSubmit}>
+            <label htmlFor="question">Question</label>
+            <textarea
+              id="question"
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              placeholder="Tapez votre question ici..."
+              rows={7}
+              required
+            />
+            <button type="submit" disabled={loading}>
+              {loading ? "Traitement..." : "Envoyer"}
+            </button>
+          </form>
+
+          <div className="response">
+            <div className="response-head">
+              <h2>Retour</h2>
+              <span>POST /chat via /api/chat</span>
+            </div>
+            {error ? (
+              <pre className="response-box error">{error}</pre>
+            ) : (
+              <pre className="response-box">
+                {answer || "La réponse apparaîtra ici."}
+              </pre>
+            )}
+          </div>
+        </aside>
+      </section>
+    </main>
+  );
+}
