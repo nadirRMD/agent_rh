@@ -4,9 +4,9 @@ import { useState } from "react";
 import { AUTH_STORAGE_KEY } from "../lib/auth";
 
 const examples = [
-  "Quels sont les congés posés en juin ?",
-  "Y a-t-il un conflit avec un congé du 12 au 14 juin ?",
-  "Que dit le document sur les congés maladie ?",
+  "Quels sont les conges poses en juin ?",
+  "Y a-t-il un conflit avec un conge du 12 au 14 juin ?",
+  "Que dit le document sur les conges maladie ?",
 ];
 
 export default function ChatClient() {
@@ -15,13 +15,13 @@ export default function ChatClient() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  let statusLabel = "Prêt";
+  let statusLabel = "Pret";
   if (loading) {
     statusLabel = "Envoi en cours";
   } else if (error) {
     statusLabel = "Erreur";
   } else if (answer) {
-    statusLabel = "Réponse";
+    statusLabel = "Reponse";
   }
 
   async function handleSubmit(event) {
@@ -75,13 +75,13 @@ export default function ChatClient() {
           <p className="eyebrow">Agent RH</p>
           <h1>Une interface Next.js pour parler au backend RH.</h1>
           <p className="lede">
-            Posez une question sur les congés ou les documents RH, puis laissez
+            Posez une question sur les conges ou les documents RH, puis laissez
             le proxy Next.js appeler l'API FastAPI locale.
           </p>
           <div className="auth-actions">
-            <span className="auth-pill">Authentifié</span>
+            <span className="auth-pill">Authentifie</span>
             <button type="button" className="ghost-button" onClick={handleLogout}>
-              Se déconnecter
+              Se deconnecter
             </button>
           </div>
           <div className="chips" aria-label="Exemples de questions">
@@ -128,7 +128,7 @@ export default function ChatClient() {
               <pre className="response-box error">{error}</pre>
             ) : (
               <pre className="response-box">
-                {answer || "La réponse apparaîtra ici."}
+                {answer || "La reponse apparaitra ici."}
               </pre>
             )}
           </div>

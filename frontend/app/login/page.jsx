@@ -7,8 +7,7 @@ import { AUTH_STORAGE_KEY } from "../../lib/auth";
 export default function LoginPage() {
   const router = useRouter();
   const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,7 +19,7 @@ export default function LoginPage() {
   async function handleSubmit(event) {
     event.preventDefault();
     setLoading(true);
-    setError("");
+    setStatus("");
 
     try {
       const response = await fetch("/api/auth/login", {
@@ -28,7 +27,7 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ login, password }),
+        body: JSON.stringify({ login }),
       });
 
       if (!response.ok) {
@@ -42,9 +41,10 @@ export default function LoginPage() {
       }
 
       window.localStorage.setItem(AUTH_STORAGE_KEY, data.token);
+      setStatus("success");
       window.location.assign("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Authentication failed.");
+      setStatus("fail");
     } finally {
       setLoading(false);
     }
@@ -56,28 +56,18 @@ export default function LoginPage() {
         <p className="eyebrow">Agent RH</p>
         <h1>Connexion requise</h1>
         <p className="lede">
-          Entrez votre login et votre mot de passe pour accéder à l'assistant RH.
+          Entrez votre identifiant pour acceder a l'assistant RH.
         </p>
 
         <form className="composer" onSubmit={handleSubmit}>
-          <label htmlFor="login">Username</label>
+          <label htmlFor="login">Identifiant</label>
           <input
             id="login"
             type="text"
             value={login}
             onChange={(event) => setLogin(event.target.value)}
-            placeholder="Username"
+            placeholder="Identifiant"
             autoComplete="username"
-            required
-          />
-          <label htmlFor="password">Mot de passe</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Mot de passe"
-            autoComplete="current-password"
             required
           />
           <button type="submit" disabled={loading}>
@@ -85,7 +75,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {error ? <pre className="response-box error">{error}</pre> : null}
+        {status ? (
+          <pre className={`response-box ${status === "fail" ? "error" : ""}`}>
+            {status}
+          </pre>
+        ) : null}
       </section>
     </main>
   );
