@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { clearAuthToken, readAuthToken } from "../lib/auth-client";
 
 const examples = [
   "Quels sont les conges poses en juin ?",
@@ -9,10 +12,17 @@ const examples = [
 ];
 
 export default function ChatClient() {
+  const router = useRouter();
   const [question, setQuestion] = useState(examples[0]);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!readAuthToken()) {
+      router.replace("/login");
+    }
+  }, [router]);
 
   let statusLabel = "Pret";
   if (loading) {
@@ -25,6 +35,13 @@ export default function ChatClient() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    const token = readAuthToken();
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setAnswer("");
@@ -34,11 +51,17 @@ export default function ChatClient() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-agent-rh-token": token,
         },
         body: JSON.stringify({ question }),
       });
 
       const text = await response.text();
+      if (response.status === 401) {
+        clearAuthToken();
+        router.replace("/login");
+        return;
+      }
       if (!response.ok) {
         throw new Error(text || `Request failed with status ${response.status}`);
       }
@@ -52,7 +75,8 @@ export default function ChatClient() {
   }
 
   async function handleLogout() {
-    window.location.reload();
+    clearAuthToken();
+    router.replace("/login");
   }
 
   return (
@@ -67,7 +91,7 @@ export default function ChatClient() {
           <div className="auth-actions">
             <span className="auth-pill">Acces direct</span>
             <button type="button" className="ghost-button" onClick={handleLogout}>
-              Rafraichir
+              Deconnexion
             </button>
           </div>
           <div className="chips" aria-label="Exemples de questions">

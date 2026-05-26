@@ -1,5 +1,9 @@
 """FastAPI entrypoint for the Agent RH project."""
 
+import base64
+import hashlib
+import hmac
+import json
 import os
 import time
 
@@ -16,6 +20,7 @@ from monitoring import get_dashboard, log_request
 
 
 app = FastAPI(title="Agent RH")
+AUTH_SECRET = os.getenv("FRONTEND_AUTH_SECRET", "agent-rh-dev-secret")
 
 frontend_origin = os.getenv("AGENT_RH_FRONTEND_ORIGIN", "http://localhost:3000")
 app.add_middleware(
@@ -37,6 +42,63 @@ class LeaveRequest(BaseModel):
     end_date: str = Field(min_length=1)
     note: str = Field(default="Just a vacation", min_length=1)
     person_id: str = Field(min_length=1)
+
+
+def _base64_url_decode(value: str) -> bytes:
+    padding = "=" * (-len(value) % 4)
+    return base64.urlsafe_b64decode(value + padding)
+
+
+def _sign_auth_payload(payload_part: str) -> str:
+    digest = hmac.new(
+        AUTH_SECRET.encode("utf-8"),
+        payload_part.encode("utf-8"),
+        hashlib.sha256,
+    ).digest()
+    return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("utf-8")
+
+
+def _extract_login_from_token(token: str) -> str | None:
+    if not isinstance(token, str) or not token:
+        return None
+
+    try:
+        payload_part, signature = token.split(".", 1)
+    except ValueError:
+        return None
+
+    if not payload_part or not signature:
+        return None
+
+    if not hmac.compare_digest(_sign_auth_payload(payload_part), signature):
+        return None
+
+    try:
+        payload = json.loads(_base64_url_decode(payload_part))
+    except (ValueError, json.JSONDecodeError):
+        return None
+
+    login = payload.get("login")
+    exp = payload.get("exp")
+    if not isinstance(login, str) or not login.strip():
+        return None
+
+    if not isinstance(exp, int) or exp < int(time.time()):
+        return None
+
+    return login.strip()
+
+
+def _get_authenticated_login(headers) -> str | None:
+    token = headers.get("x-agent-rh-token")
+    if not token:
+        authorization = headers.get("authorization")
+        if authorization:
+            scheme, _, bearer_token = authorization.partition(" ")
+            if scheme.lower() == "bearer":
+                token = bearer_token.strip()
+
+    return _extract_login_from_token(token or "")
 
 
 def _extract_text(message) -> str:
@@ -92,10 +154,10 @@ def _extract_tokens(result, message) -> tuple[int, int]:
     return 0, 0
 
 
-def ask_agent(question: str) -> str:
+def ask_agent(question: str, authenticated_login: str | None = None) -> str:
     start_time = time.perf_counter()
     try:
-        set_authenticated_login(None)
+        set_authenticated_login(authenticated_login)
         result = agent.invoke({"messages": [{"role": "user", "content": question}]})
         message = result["messages"][-1]
         answer = _extract_text(message)
@@ -106,7 +168,9 @@ def ask_agent(question: str) -> str:
     except Exception as exc:
         latency_ms = int((time.perf_counter() - start_time) * 1000)
         log_request(question, latency_ms, 0, 0, error=exc)
-        raise HTTPException(status_code=500, detail="Erreur lors du traitement de la requête.")
+        raise HTTPException(status_code=500, detail="Erreur lors du traitement de la requete.")
+    finally:
+        set_authenticated_login(None)
 
 
 @app.get("/", response_class=PlainTextResponse)
@@ -120,7 +184,11 @@ def chat(payload: ChatRequest, request: Request) -> str:
     if not question:
         raise HTTPException(status_code=400, detail="Question vide.")
 
-    return ask_agent(question)
+    authenticated_login = _get_authenticated_login(request.headers)
+    if not authenticated_login:
+        raise HTTPException(status_code=401, detail="Unauthorized.")
+
+    return ask_agent(question, authenticated_login=authenticated_login)
 
 
 @app.get("/chat", response_class=HTMLResponse)
@@ -177,7 +245,7 @@ def chat_form() -> str:
           <textarea id="question" name="question" placeholder="Posez une question RH..." required></textarea>
           <button type="submit">Envoyer</button>
         </form>
-        <h2>Réponse</h2>
+        <h2>Reponse</h2>
         <pre id="response">En attente de votre question...</pre>
         <script>
           const form = document.getElementById("chat-form");
@@ -186,7 +254,7 @@ def chat_form() -> str:
 
           form.addEventListener("submit", async (event) => {
             event.preventDefault();
-            responseBox.textContent = "Réflexion en cours...";
+            responseBox.textContent = "Reflexion en cours...";
 
             try {
               const response = await fetch("/chat", {
@@ -198,7 +266,7 @@ def chat_form() -> str:
               const text = await response.text();
               responseBox.textContent = response.ok ? text : `Erreur ${response.status}: ${text}`;
             } catch (error) {
-              responseBox.textContent = `Échec de la requête: ${error}`;
+              responseBox.textContent = `Echec de la requete: ${error}`;
             }
           });
         </script>

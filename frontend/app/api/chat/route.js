@@ -16,11 +16,14 @@ export async function POST(request) {
     return new Response("Missing question.", { status: 400 });
   }
 
+  const token = request.headers.get("x-agent-rh-token") || "";
+
   try {
     const backendResponse = await fetch(`${BACKEND_URL}/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(token ? { "x-agent-rh-token": token } : {}),
       },
       body: JSON.stringify({ question: payload.question }),
     });
