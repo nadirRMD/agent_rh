@@ -1,5 +1,5 @@
-import ChatClient from "./chat-client";
+import LoginClient from "./login-client";
 
 export default function Home() {
-  return <ChatClient />;
+  return <LoginClient />;
 }
